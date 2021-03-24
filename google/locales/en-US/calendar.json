@@ -16,10 +16,9 @@
             "minutes": "minutes",
             "hours": "hours",
             "days": "days",
-            "before": "before",
-            "start": "start",
             "name": "Name",
-            "count": "Events"
+            "count": "Events",
+            "incl-og-events": "Include ongoing events"
         },
         "status": {
             "querying": "querying",

@@ -46,37 +46,13 @@
             <option value="hours" data-i18n="calendar.label.hours"></option>
             <option value="days" data-i18n="calendar.label.days"></option>
         </select>
-        <span id="node-input-type"><span data-i18n="calendar.label.before"></span></span> <span data-i18n="calendar.label.the"></span> <span id="node-input-from"><span data-i18n="calendar.label.start"></span></span> <span data-i18n="calendar.label.each-event"></span>
+        <span id="node-input-type"><span data-i18n="calendar.label.option_before"></span></span> <span data-i18n="calendar.label.the"></span> <span id="node-input-from"><span data-i18n="calendar.label.option_start"></span></span> <span data-i18n="calendar.label.each-event"></span>
     </div>
 
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="calendar.label.name"></span></label>
         <input type="text" id="node-input-name">
     </div>
-</script>
-
-<script type="text/x-red" data-help-name="google calendar in">
-  <p>Send a message every time an event occurs in a <a href="https://www.google.com/calendar">Google Calendar</a>.</p>
-  <p>The message sent from the node will have properties:
-    <ul>
-      <li><b>title</b> - the summary string from the calendar entry</li>
-      <li><b>description</b> - the description from the calendar entry</li>
-      <li><b>location.description</b> - the location string from the calendar entry</li>
-      <li><b>data</b> - the raw event from the google calendar query as described in the <a href="https://developers.google.com/google-apps/calendar/v3/reference/events/list">event list API documentation</a></li>
-      <li><b>payload</b> - an object containing:
-        <ul>
-          <li><b>title</b> - the summary string from the calendar entry</li>
-          <li><b>description</b> - the description from the calendar entry</li>
-          <li><b>location.description</b> - the location string from the calendar entry</li>
-          <li><b>start</b> - Javascript Date of start time - midnight for all day event</li>
-          <li><b>end</b> - Javascript Date of end time - midnight for all day event</li>
-          <li><b>allDayEvent</b> - true if event is an all day event</li>
-          <li><b>creator</b> - object containing name and email properties</li>
-          <li><b>attendees</b> - list of objects containing name and email properties</li>
-        </ul>
-      </li>
-    </ul>
-  </p>
 </script>
 
 <script type="text/javascript">
@@ -100,6 +76,10 @@
         },
         oneditprepare: function() {
             var type = this.offsetType || "at";
+            var type_before = this._("calendar.label.option_before");
+            var type_after = this._("calendar.label.option_after");
+            var from_start = this._("calendar.label.option_start");
+            var from_end = this._("calendar.label.option_end");
             $("#node-input-offsetType option").filter(function() {
                 return $(this).val() == type;
             }).attr('selected', true);
@@ -119,8 +99,16 @@
                 if (type === "at") {
                     $("#node-row-offset").hide();
                 } else {
-                    $("#node-input-type").html(type);
-                    $("#node-input-from").html(from);
+                    if (type === "before") {
+                        $("#node-input-type").html(type_before);
+                    } else if (type === "after") {
+                        $("#node-input-type").html(type_after);
+                    }
+                    if (from === "start") {
+                        $("#node-input-from").html(from_start);
+                    } else if (from === "end") {
+                        $("#node-input-from").html(from_end);
+                    }
                     $("#node-row-offset").show();
                 }
              };
@@ -150,39 +138,8 @@
     </div>
     <div class="form-row">
         <input type="checkbox" id="node-input-ongoing" placeholder="" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-ongoing" style="width: 70%;">Include ongoing events</label>
+        <label for="node-input-ongoing" style="width: 70%;"><span data-i18n="calendar.label.incl-og-events"></label>
     </div>
-</script>
-
-<script type="text/x-red" data-help-name="google calendar">
-  <p>Return the next event in a <a href="https://www.google.com/calendar">Google Calendar</a>.</p>
-  <p>The incoming message can provide the following properties:
-    <ul>
-      <li><b>payload</b> - a text search string used to select relevant events</li>
-      <li><b>calendar</b> - the calendar to retrieve the event from (optional, defaults to the node calendar property or the users primary calendar)</li>
-      <li><b>count</b> - the number of events to retrieve (Accepted values are [1-10]. If larger than 1, an array will be returned)</li>
-    </ul>
-  </p>
-  <p>The message sent from the node will have properties:
-    <ul>
-      <li><b>title</b> - the summary string from the calendar entry</li>
-      <li><b>description</b> - the description from the calendar entry</li>
-      <li><b>location.description</b> - the location string from the calendar entry</li>
-      <li><b>data</b> - the raw event from the google calendar query as described in the <a href="https://developers.google.com/google-apps/calendar/v3/reference/events/list">event list API documentation</a></li>
-      <li><b>payload</b> - an object containing:
-        <ul>
-          <li><b>title</b> - the summary string from the calendar entry</li>
-          <li><b>description</b> - the description from the calendar entry</li>
-          <li><b>location.description</b> - the location string from the calendar entry</li>
-          <li><b>start</b> - Javascript Date of start time - midnight for all day event</li>
-          <li><b>end</b> - Javascript Date of end time - midnight for all day event</li>
-          <li><b>allDayEvent</b> - true if event is an all day event</li>
-          <li><b>creator</b> - object containing name and email properties</li>
-          <li><b>attendees</b> - list of objects containing name and email properties</li>
-        </ul>
-      </li>
-    </ul>
-  </p>
 </script>
 
 <script type="text/javascript">
@@ -221,17 +178,6 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="calendar.label.name"></span></label>
         <input type="text" id="node-input-name">
     </div>
-</script>
-
-<script type="text/x-red" data-help-name="google calendar out">
-  <p>Create an entry in a <a href="https://www.google.com/calendar">Google Calendar</a>.</p>
-  <p>The incoming message can provide the following properties:
-    <ul>
-      <li><b>payload</b> - either a string to describe the event using <a href="https://support.google.com/calendar/answer/36604?hl=en">quick add format</a> or an object representing the request body for an <a href="https://developers.google.com/google-apps/calendar/v3/reference/events/insert">insert request</a></li>
-      <li><b>calendar</b> - the calendar to add the event to (optional, defaults to the node calendar property or the users primary calendar)</li>
-      <li><b>sendNotifications</b> - a boolean to determine if notifications should be sent to attendees (optional, defaults to false)</li>
-    </ul>
-  </p>
 </script>
 
 <script type="text/javascript">
