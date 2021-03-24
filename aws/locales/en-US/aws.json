@@ -9,7 +9,8 @@
             "region": "Region",
             "local": "Local Filename",
             "keyid": "AccessKeyID",
-            "secret": "Secret Access Key"
+            "secret": "Secret Access Key",
+            "prefix": "Bucket Prefix"
         },
         "placeholder": {
             "bucket": "bucket name",
@@ -17,7 +18,8 @@
             "name": "Name",
             "filename": "Filename",
             "region": "Region",
-            "local": "Local Filename"
+            "local": "Local Filename",
+            "prefix": "Bucket Prefix"
         },
         "tip": {
             "config1": "<p>To obtain these credentials, sign up to <a href='http://aws.amazon.com/'>Amazon Web Services</a>, Then either:</p>",

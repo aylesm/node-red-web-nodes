@@ -9,7 +9,8 @@
             "region": "Region",
             "local": "Lokaler Dateiname",
             "keyid": "Access Key ID",
-            "secret": "Secret Access Key"
+            "secret": "Secret Access Key",
+            "prefix": "Bucket Prefix"
         },
         "placeholder": {
             "bucket": "Bucket-Name",
@@ -17,7 +18,8 @@
             "name": "Name",
             "filename": "Dateiname",
             "region": "Region",
-            "local": "Lokaler Dateiname"
+            "local": "Lokaler Dateiname",
+            "prefix": "Bucket Prefix"
         },
         "tip": {
             "config1": "<p>Zum Erhalt der Berechtigungen nach Anmeldung auf <a href='http://aws.amazon.com/'>Amazon Web Services</a> kann man entweder</p>",

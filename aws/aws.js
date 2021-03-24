@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-module.exports = function(RED) {
+ module.exports = function(RED) {
     "use strict";
     var fs = require('fs');
     var minimatch = require("minimatch");
@@ -34,7 +34,8 @@ module.exports = function(RED) {
     RED.nodes.registerType("aws-config",AWSNode,{
         credentials: {
             accesskeyid: { type:"text" },
-            secretaccesskey: { type: "password" }
+            secretaccesskey: { type: "password" },
+            prefix: { type: "text" }
         }
     });
 
@@ -44,6 +45,7 @@ module.exports = function(RED) {
         // eu-west-1||us-east-1||us-west-1||us-west-2||eu-central-1||ap-northeast-1||ap-northeast-2||ap-southeast-1||ap-southeast-2||sa-east-1
         this.region = n.region || "eu-west-1";
         this.bucket = n.bucket;
+        this.prefix = n.prefix;
         this.filepattern = n.filepattern || "";
         var node = this;
         var AWS = this.awsConfig ? this.awsConfig.AWS : null;
@@ -55,7 +57,7 @@ module.exports = function(RED) {
         var s3 = new AWS.S3({"region": node.region});
         node.status({fill:"blue",shape:"dot",text:"aws.status.initializing"});
         var contents = [];
-        node.listAllObjects(s3, { Bucket: node.bucket },contents, function(err, data) {
+        node.listAllObjects(s3, { Bucket: node.bucket, Prefix: node.prefix },contents, function(err, data) {
             if (err) {
                 node.error(RED._("aws.error.failed-to-fetch", {err:err}));
                 node.status({fill:"red",shape:"ring",text:"aws.status.error"});
@@ -67,7 +69,7 @@ module.exports = function(RED) {
             node.on("input", function(msg) {
                 node.status({fill:"blue",shape:"dot",text:"aws.status.checking-for-changes"});
                 var contents = [];
-                node.listAllObjects(s3, { Bucket: node.bucket }, contents, function(err, data) {
+                node.listAllObjects(s3, { Bucket: node.bucket, Prefix:node.prefix }, contents, function(err, data) {
                     if (err) {
                         node.error(RED._("aws.error.failed-to-fetch", {err:err}),msg);
                         node.status({});
@@ -147,6 +149,7 @@ module.exports = function(RED) {
         this.awsConfig = RED.nodes.getNode(n.aws);
         this.region = n.region || "eu-west-1";
         this.bucket = n.bucket;
+        this.prefix = n.prefix;
         this.filename = n.filename || "";
         var node = this;
         var AWS = this.awsConfig ? this.awsConfig.AWS : null;
@@ -158,6 +161,7 @@ module.exports = function(RED) {
         var s3 = new AWS.S3({"region": node.region});
         node.on("input", function(msg) {
             var bucket = node.bucket || msg.bucket;
+            var prefix = node.prefix || msg.prefix;
             if (bucket === "") {
                 node.error(RED._("aws.error.no-bucket-specified"),msg);
                 return;
@@ -168,11 +172,13 @@ module.exports = function(RED) {
                 node.error(RED._("aws.error.no-filename-specified"),msg);
                 return;
             }
+            msg.prefix = prefix;
             msg.bucket = bucket;
             msg.filename = filename;
             node.status({fill:"blue",shape:"dot",text:"aws.status.downloading"});
             s3.getObject({
                 Bucket: bucket,
+                Prefix: prefix,
                 Key: filename,
             }, function(err, data) {
                 if (err) {
@@ -196,6 +202,7 @@ module.exports = function(RED) {
         this.bucket = n.bucket;
         this.filename = n.filename || "";
         this.localFilename = n.localFilename || "";
+        this.prefix = n.prefix;
         var node = this;
         var AWS = this.awsConfig ? this.awsConfig.AWS : null;
 
@@ -206,7 +213,7 @@ module.exports = function(RED) {
         if (AWS) {
             var s3 = new AWS.S3({"region": node.region});
             node.status({fill:"blue",shape:"dot",text:"aws.status.checking-credentials"});
-            s3.listObjects({ Bucket: node.bucket }, function(err) {
+            s3.listObjects({ Bucket: node.bucket, Prefix: node.prefix }, function(err) {
                 if (err) {
                     node.warn(err);
                     node.error(RED._("aws.error.aws-s3-error",{err:err}));
@@ -225,6 +232,9 @@ module.exports = function(RED) {
                         node.error(RED._("aws.error.no-filename-specified"),msg);
                         return;
                     }
+
+                    var prefix = node.prefix || msg.prefix;
+
                     var localFilename = node.localFilename || msg.localFilename;
                     if (localFilename) {
                         // TODO: use chunked upload for large files
@@ -234,6 +244,7 @@ module.exports = function(RED) {
                             Bucket: bucket,
                             Body: stream,
                             Key: filename,
+                            Prefix: prefix
                         }, function(err) {
                             if (err) {
                                 node.error(err.toString(),msg);
@@ -248,6 +259,7 @@ module.exports = function(RED) {
                             Bucket: bucket,
                             Body: RED.util.ensureBuffer(msg.payload),
                             Key: filename,
+                            Prefix: prefix
                         }, function(err) {
                             if (err) {
                                 node.error(err.toString(),msg);
